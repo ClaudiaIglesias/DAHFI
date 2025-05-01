@@ -11,13 +11,14 @@ from src.database import create_clinical_data, get_targets_by_pH, create_clinica
 
 
 
-def combine_files(data_folder = 'bbdd/data/', output_folder = 'bbdd/', compressed=False):
+def combine_files(data_folder = 'bbdd/data/', output_folder = 'bbdd/', compressed=False, extra_data=False):
     """ Function that combines all the files in the data folder into a single CSV file
     
     Parameters:
         - data_folder: path of the folder containing the data files
         - output_folder: path of the folder to store the combined CSV file
         - compressed: whether the files are compressed or not
+        - extra_data: whether to include the data from antoher csv file or not
     """
 
     # To store FHR and UC values for each file
@@ -82,6 +83,22 @@ def combine_files(data_folder = 'bbdd/data/', output_folder = 'bbdd/', compresse
     final_fhr_df = pd.concat(fhr_data_dict.values(), ignore_index=True)
     final_uc_df = pd.concat(uc_data_dict.values(), ignore_index=True)
 
+
+    ################### If extra fhr data is provided, load it and concatenate
+
+    if extra_data:
+        # Load the data
+        extra_fhr_path = output_folder + 'fhr_12O.csv'
+        extra_fhr_df = pd.read_csv(extra_fhr_path, compression='gzip')
+
+        # Rename the first column to 'FileName' to match the format
+        if extra_fhr_df.columns[0] != 'FileName':
+            extra_fhr_df = extra_fhr_df.rename(columns={extra_fhr_df.columns[0]: 'FileName'})
+
+        # Concatenate
+        final_fhr_df = pd.concat([final_fhr_df, extra_fhr_df], ignore_index=True)
+
+
     # Save the combined DataFrame to a CSV file
     final_fhr_df.to_csv(fhr_csv_path, index=False)
     final_uc_df.to_csv(uc_csv_path, index=False)
@@ -111,7 +128,8 @@ def create_processed_file(output_folder = 'bbdd/'):
     
 
     # Get the filenames from the original file
-    filenames = fhr_df.index
+    filenames_fhr = fhr_df.index
+    filenames_uc = uc_df.index
 
     # The data without the filename column
     fhr_np = fhr_df.iloc[:, 1:].to_numpy()
@@ -126,9 +144,9 @@ def create_processed_file(output_folder = 'bbdd/'):
 
     # Create the dataframe and add the filenames as the first column
     fhr_proc_df = pd.DataFrame(fhr_proc_np)
-    fhr_proc_df.insert(0, 'FileName', filenames)
+    fhr_proc_df.insert(0, 'FileName', filenames_fhr)
     uc_proc_df = pd.DataFrame(uc_proc_np)
-    uc_proc_df.insert(0, 'FileName', filenames)
+    uc_proc_df.insert(0, 'FileName', filenames_uc)
 
     # Save the processed data to a new CSV file
     fhr_proc_df.to_csv(output_folder + 'fhr_data_processed.csv', index=False)
@@ -197,7 +215,7 @@ def create_matrix(hea_folder='bbdd/extra/', output_folder='bbdd/', feature_set=[
 
     # Generate clinical data and get the pH labels
     if excel:
-        create_clinical_data_excel(output_folder + "/extra/clases.xls", output_folder)
+        create_clinical_data_excel(output_folder + "/extra/clases.xls", output_folder + "extra/clinical_12O.csv", output_folder)
     else:
         create_clinical_data(hea_folder, output_folder)
 

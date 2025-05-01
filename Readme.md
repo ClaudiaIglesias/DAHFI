@@ -1,14 +1,43 @@
-En el notebook *process_ctu-chb* se muestra el proceso entero de preproceso de los datos de la base de datos pública de ctu-chb y el entrenamiento de los modelos y los resultados obtenidos
+# Detección de Hipoxia Fetal con Machine Learning
 
-En *process_h12O* se muestra el proceso de generación de los csv, preproceso de los datos y entrenamiento de los modelos con la base de datos del hospital 12 de octubre.
+Este proyecto forma parte de un Trabajo de Fin de Grado y tiene como objetivo aplicar técnicas de aprendizaje automático para la detección de hipoxia fetal utilizando señales de frecuencia cardíaca fetal (FHR) y otros datos clínicos. Se utilizan dos conjuntos de datos distintos: la base de datos pública CTU-CHB y datos reales del Hospital 12 de Octubre (H12O).
 
-Para poder ejecutar estos notebook, se aporta un requirements.txt con los paquetes necesarios.
+## Estructura del Proyecto
 
-En caso de querer ejecutar el paso de pdf a csv, se deberá además instalar inskacape con el comando
+- `process_ctu-chb.ipynb`: Notebook donde se muestra todo el proceso aplicado sobre la base de datos **CTU-CHB**, incluyendo:
+  - Preprocesado de las señales FHR.
+  - Extracción de características (lineales, no lineales y morfológicas).
+  - Entrenamiento y evaluación de varios modelos de Machine Learning con optimización de hiperparámetros.
+  - Análisis de resultados y visualización de métricas (precisión, F1-score, etc.).
+
+- `process_h12O.ipynb`: Notebook donde se procesa la base de datos del **Hospital 12 de Octubre**, incluyendo:
+  - Preprocesado de las señales FHR.
+  - Extracción de características (lineales, no lineales y morfológicas).
+  - Entrenamiento y evaluación de varios modelos de Machine Learning con optimización de hiperparámetros.
+  - Análisis de resultados y visualización de métricas (precisión, F1-score, etc.).
+
+- `Anonymize`: Contiene los scripts necesarios para anonimizar los PDFs con las señales clínicas.
+
+## Requisitos
+
+Para ejecutar los notebooks, se debe tener instalado Python en una versión compatible:
+
+- **Python >= 3.9 y < 3.13**
+
+Hay disponible un archivo _requirements.txt_ para poder instalar las dependencias con:
+
+```bash
+pip install -r requirements.txt
+```
+
+Además, en caso de querer ejecutar el paso de PDF a CSV, es necesario instalar **Inskacape** con el comando:
+
+```bash
 sudo apt install inkscape -ys
-Esto solo se puede hacer en linux.
+```
 
-La versión de python debe ser only versions >=3.9,<3.13 are supported. Si no, los paquetes del requirements darán errores.
+**El paso de PDF a CSV solo se puede hacer en linux ya que necesita ejecutar un script de bash.**
+
 
 
 

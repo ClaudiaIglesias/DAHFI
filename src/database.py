@@ -112,39 +112,47 @@ def create_clinical_data(path_hea='ctu-chb/', path_clinical='data/'):
 
 
 
-def create_clinical_data_excel(excel_file, path_output='csv/'):
+def create_clinical_data_excel(excel_file, csv_file, path_output='csv/'):
     """ Function that creates a CSV file with the NHC and pH values from the Excel file.
     
     Parameters:
         - excel_file: path of the Excel file to extract the data from.
         - path_output: path where to save the CSV file"""
 
-    # Load the Excel file
-    data_df = pd.read_excel(excel_file, dtype=str)
+    ################ Load the Excel file
+    excel_df = pd.read_excel(excel_file, dtype=str)
 
     # Select only the columns we need (NHC and pH)
-    selected_cols = ["NHC", "PH_INTRAPARTO", "PH_CORDON_ARTERIA", "PH_CORDON_VENA"]
-    data_df = data_df[selected_cols].copy()
+    excel_df = excel_df[["NHC", "PH_INTRAPARTO", "PH_CORDON_ARTERIA", "PH_CORDON_VENA"]].copy()
 
     # Remove rows with NaN in NHC
-    data_df = data_df.dropna(subset=["NHC"])
-
+    excel_df = excel_df.dropna(subset=["NHC"])
 
     # Convert columns to numeric, ignoring errors
     for col in ["PH_INTRAPARTO", "PH_CORDON_ARTERIA", "PH_CORDON_VENA"]:
-        data_df[col] = pd.to_numeric(data_df[col], errors="coerce")
+        excel_df[col] = pd.to_numeric(excel_df[col], errors="coerce")
 
 
     # For each value of data_df, ph_cordon_arteria if it exists, if not ph_cordon_vena, if not ph_intraparto, if not NaN
-    data_df["ph"] = data_df["PH_CORDON_ARTERIA"].combine_first(data_df["PH_CORDON_VENA"]).combine_first(data_df["PH_INTRAPARTO"])
+    excel_df["ph"] = excel_df["PH_CORDON_ARTERIA"].combine_first(excel_df["PH_CORDON_VENA"]).combine_first(excel_df["PH_INTRAPARTO"])
 
     # Remove the individual pH columns
-    data_df.drop(columns=["PH_INTRAPARTO", "PH_CORDON_ARTERIA", "PH_CORDON_VENA"], inplace=True)
+    excel_df.drop(columns=["PH_INTRAPARTO", "PH_CORDON_ARTERIA", "PH_CORDON_VENA"], inplace=True)
 
     # Set the NHC as index (file name)
-    data_df.set_index("NHC", inplace=True)
+    excel_df.set_index("NHC", inplace=True)
 
-    # Save as compressed CSV
-    data_df.to_csv(f"{path_output}clinical_data.csv", compression="gzip")
+
+    ############ Load the csv file
+    csv_df = pd.read_csv(csv_file, compression="gzip")
+    csv_df = csv_df[["NHC", "PH"]].copy()
+    csv_df = csv_df.dropna(subset=["NHC", "PH"])
+    csv_df["ph"] = pd.to_numeric(csv_df["PH"], errors="coerce")
+    csv_df = csv_df[["NHC", "ph"]].dropna()
+    csv_df.set_index("NHC", inplace=True)
+
+    # Save as compressed CSV both files concatenated
+    combined_df = pd.concat([excel_df, csv_df[~csv_df.index.isin(excel_df.index)]])
+    combined_df.to_csv(f"{path_output}clinical_data.csv", compression="gzip")
 
     return
