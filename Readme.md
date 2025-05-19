@@ -53,7 +53,7 @@ ctu-chb/
 ├── data/
 │ └── *.csv     
 └── extra/
-└── *.hea       
+  └── *.hea       
 ```
 
 - Los archivos `.csv` deben ir en la carpeta `ctu-chb/data/`.
