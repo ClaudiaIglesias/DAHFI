@@ -287,10 +287,10 @@ def plot_processed_data(file, data_folder = 'bbdd/data/', main_folder = 'bbdd/',
     time_processed = np.arange(0, len(processed_fhr) * 0.25, 0.25)  
 
     # Show only the last seconds of the original one to match the processed one
-    num_samples = 21 * 60 / 0.25
+    num_samples = 20.5 * 60 / 0.25
     last_original_fhr = original_fhr[-int(num_samples):]
     last_original_uc = original_uc[-int(num_samples):]
-    time_last_original = np.arange(len(last_original_fhr)) * 0.25
+    time_last_original = np.linspace(0, 1100, len(last_original_fhr))
 
     # Create subplots
     plt.figure(figsize=(10, 15))
