@@ -83,11 +83,12 @@ class ModelTesting:
 
         # Cross validation
         # El random_state 12, 10 folds, es el mejor para ctu-chb
-        cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=12)
+        cv_inner = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=12)
+        cv_outer = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=11)
 
         # Grid Search to find the best parameters
         if param_grid:
-            grid_search = GridSearchCV(estimator=self.model, param_grid=param_grid, scoring=scoring, cv=cv, n_jobs=-1)
+            grid_search = GridSearchCV(estimator=self.model, param_grid=param_grid, scoring=scoring, cv=cv_inner, n_jobs=-1)
             grid_search.fit(self.X, self.y)
 
             # Update the model with the best parameters
@@ -96,12 +97,12 @@ class ModelTesting:
         # Perform cross-validation using the best parameters
 
         # Make predictions
-        y_pred_cv = cross_val_predict(self.model, self.X, self.y, cv=cv)
+        y_pred_cv = cross_val_predict(self.model, self.X, self.y, cv=cv_outer)
 
         # Get accuracy using the calculated predictions
         accuracy = accuracy_score(self.y, y_pred_cv)
         balanced_acc = balanced_accuracy_score(self.y, y_pred_cv)
-        f1 = f1_score(self.y, y_pred_cv, average='weighted')
+        f1 = f1_score(self.y, y_pred_cv, average='binary')
 
         if report:
             print("\tBest Parameters:", grid_search.best_params_)
